@@ -17,7 +17,7 @@ export default class User implements IUser {
 	@Column({ nullable: true, unique: true })
 	email: string;
 
-	@Column({ nullable: false })
+	@Column({ nullable: false, unique: true })
 	passwordHash: string;
 
 	@Column({ nullable: true, unique: true })
