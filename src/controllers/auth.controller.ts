@@ -59,8 +59,6 @@ export default class AuthController {
 			verifyEmailOrPhoneNumberExpirationSeconds
 		);
 
-		console.log("token", token);
-
 		await tokenRepository.save(token);
 		let message = "";
 		if (email) {
@@ -69,7 +67,6 @@ export default class AuthController {
 			message =
 				"Registration successful, check your email for verification token";
 		} else if (phoneNumber) {
-			const OTP = generateOTP(6);
 			await sendSMS(user.phoneNumber, token.token);
 			message =
 				"Registration successful, we sent you a verification token to your mobile number";
@@ -111,10 +108,6 @@ export default class AuthController {
 			throw new AccountNotVerifiedError(message);
 		}
 
-		// if (!user.isAccountActive) {
-		// 	throw new AccountNotVerifiedError("Account not activated");
-		// }
-
 		if (user.failedLoginAttempts > 3 || user.isAccountLocked) {
 			throw new unauthunticatedError(
 				"Account locked, due to multiple failed login attempts"
@@ -145,9 +138,9 @@ export default class AuthController {
 			where: { user: { id: user.id }, type: TokenTypes.REFRESH_TOKEN },
 		});
 
-		// if (oldRefreshToken) {
-		// 	await tokenRepository.remove(oldRefreshToken);
-		// }
+		if (oldRefreshToken) {
+			await tokenRepository.remove(oldRefreshToken);
+		}
 
 		await tokenRepository.save(refreshToken);
 		user.passwordHash = undefined;
